@@ -58,7 +58,7 @@ import base64
 from sagemaker.serializers import IdentitySerializer
 
 # Fill this in with the name of your deployed model
-ENDPOINT =  ## TODO: fill in
+ENDPOINT =  "image-classification-2023-08-30-22-39-04-036"
 
 
 def lambda_handler(event, context):
@@ -66,7 +66,7 @@ def lambda_handler(event, context):
     image = base64.b64decode(event["image_data"])
 
     # Instantiate a Predictor
-    predictor=  ## TODO: fill in
+    # predictor =
 
     # For this model the IdentitySerializer needs to be "image/png"
     predictor.serializer = IdentitySerializer("image/png")
@@ -92,7 +92,7 @@ def lambda_handler(event, context):
 import json
 
 # Look what threshold I've got
-THRESHOLD = .8
+THRESHOLD = .85
 
 
 def lambda_handler(event, context):
