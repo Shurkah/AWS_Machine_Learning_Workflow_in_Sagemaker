@@ -8,7 +8,7 @@
 ''''
 {
   "image_data": "",
-  "s3_bucket": MY_BUCKET_NAME, # Fill in with your bucket
+  "s3_bucket": "vedrauxx",
   "s3_key": "test/bicycle_s_000513.png"
 }
 ''''
@@ -25,8 +25,11 @@ def lambda_handler(event, context):
     """A function to serialize target data from S3"""
 
     # Get the s3 address from the Step Function event input
-    key = event["s3_key"]
-    bucket = event["s3_bucket"]
+
+    # Need to access bucket and key via the body, otherwise getting KeyError
+    body = event["body"]
+    key = body["s3_key"]
+    bucket = body["s3_bucket"]
 
     # Download the data from s3 to /tmp/image.png
     s3.download_file(bucket, key, '/tmp/image.png')
@@ -48,6 +51,7 @@ def lambda_handler(event, context):
     }
 
 
+
 #####################################################################
 
 # Inference lambda function
@@ -58,7 +62,7 @@ import base64
 from sagemaker.serializers import IdentitySerializer
 
 # Fill this in with the name of your deployed model
-ENDPOINT =  "image-classification-2023-08-30-22-39-04-036"
+ENDPOINT =  "image-classification-2023-09-01-17-32-58-596"
 
 
 def lambda_handler(event, context):
@@ -89,21 +93,20 @@ def lambda_handler(event, context):
 
 # Threshold lambda function
 
-import json
-
-# Look what threshold I've got
 THRESHOLD = .85
 
 
 def lambda_handler(event, context):
     # Grab the inferences from the event
-    inferences = event['inferences']
+    body = json.loads(event["body"])
+    inferences_str = body["body"]["inferences"]
+    inferences = json.loads(inferences_str)
 
     # Check if any values in our inferences are above THRESHOLD
-    meets_threshold = (max(inferences) > THRESHOLD)
+    meets_threshold = max(inferences) > THRESHOLD
 
-# The project asks to comment out error handling
-# for the function to fail loudly:)
+    # The project asks to comment out error handling
+    # for the function to fail loudly:)
 
     # If our threshold is met, pass our data back out of the
     # Step Function, else, end the Step Function with an error
